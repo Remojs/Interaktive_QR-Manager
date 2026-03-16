@@ -7,10 +7,10 @@ const groupsRoutes = require('./routes/groups');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Allow Vite dev server (5173), production preview (4173), or custom origin via env
+// Allow Next.js dev (3001), Vite dev (5173), production preview (4173), or custom origin via env
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'http://localhost:4173'];
+  : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4173'];
 
 app.use(cors({
   origin: allowedOrigins,
