@@ -3,5 +3,6 @@ backend/node_modules/
 frontend/node_modules/
 backend/db/qrs.db
 frontend/dist/
-
+.env
+backend/.env
 /frontend

@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db/database');
-const qrsRoutes = require('./routes/qrs');
+const qrsRoutes    = require('./routes/qrs');
+const groupsRoutes = require('./routes/groups');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,7 +33,11 @@ app.get('/q/:id', (req, res) => {
 });
 
 // ── API routes ─────────────────────────────────────────────────────────────────
-app.use('/api/qrs', qrsRoutes);
+app.use('/api/qrs',    qrsRoutes);
+app.use('/api/groups', groupsRoutes);
+
+// ── Health check ──────────────────────────────────────────────────────────────
+app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
 // ── Global error handler ──────────────────────────────────────────────────────
 // eslint-disable-next-line no-unused-vars
