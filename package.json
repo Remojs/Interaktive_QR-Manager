@@ -1,0 +1,12 @@
+{
+  "name": "interaktive-qr-manager",
+  "version": "1.0.0",
+  "description": "Dynamic QR Code Manager – workspace root",
+  "private": true,
+  "scripts": {
+    "install:all":      "cd backend && npm install && cd ../frontend && npm install",
+    "start:backend":    "cd backend && node server.js",
+    "start:frontend":   "cd frontend && npm run dev",
+    "build:frontend":   "cd frontend && npm run build"
+  }
+}
