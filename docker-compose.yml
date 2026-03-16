@@ -10,7 +10,7 @@ services:
     environment:
       PORT: 3000
       # Comma-separated list of allowed frontend origins
-      ALLOWED_ORIGINS: "https://tu-dominio.com"
+      ALLOWED_ORIGINS: "https://interaktive-qr-manager.vercel.app"
     volumes:
       # Persist the SQLite database outside the container
       - qr_data:/app/db

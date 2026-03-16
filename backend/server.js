@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 // Allow Next.js dev (3001), Vite dev (5173), production preview (4173), or custom origin via env
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4173'];
+  : ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4173', 'https://interaktive-qr-manager.vercel.app'];
 
 app.use(cors({
   origin: allowedOrigins,
