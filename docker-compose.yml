@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: qr-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      # Comma-separated list of allowed frontend origins
+      ALLOWED_ORIGINS: "https://tu-dominio.com"
+    volumes:
+      # Persist the SQLite database outside the container
+      - qr_data:/app/db
+
+volumes:
+  qr_data:
