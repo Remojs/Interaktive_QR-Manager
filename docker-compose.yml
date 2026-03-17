@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
+      # Public URL of this backend — encoded inside every QR code
+      BASE_URL: "https://backends-interaktive-qrservice.u8ww2k.easypanel.host"
       # Comma-separated list of allowed frontend origins
       ALLOWED_ORIGINS: "https://interaktive-qr-manager.vercel.app"
     volumes:

@@ -30,6 +30,9 @@ export default function HomePage() {
   const [showNewGroupModal, setShowNewGroupModal] = useState(false)
   const [newGroupName, setNewGroupName] = useState("")
 
+  // QR preview modal
+  const [previewQr, setPreviewQr] = useState<QR | null>(null)
+
   useEffect(() => {
     if (!localStorage.getItem("qr-auth")) {
       router.push("/")
@@ -163,6 +166,10 @@ export default function HomePage() {
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("es-ES", { year: "numeric", month: "short", day: "numeric" })
 
+  const shortUrl = (url: string) => {
+    try { return new URL(url).hostname } catch { return url }
+  }
+
   const thClass = "text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3"
   const inputClass = "bg-[#1a1a24] border border-[#2a2a3c] rounded px-2 py-1 text-sm w-full text-white focus:outline-none focus:ring-1 focus:ring-purple-500/50"
 
@@ -205,8 +212,9 @@ export default function HomePage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1 text-sm"
+                    title={qr.destination_url}
                   >
-                    {qr.destination_url.length > 35 ? qr.destination_url.substring(0, 35) + "…" : qr.destination_url}
+                    {shortUrl(qr.destination_url)}
                     <ExternalLink className="w-3 h-3 shrink-0" />
                   </a>
                 )}
@@ -221,8 +229,8 @@ export default function HomePage() {
                   width={48}
                   height={48}
                   className="rounded cursor-pointer hover:scale-110 transition-transform"
-                  onClick={() => downloadQR(qr)}
-                  title="Click para descargar"
+                  onClick={() => setPreviewQr(qr)}
+                  title="Click para ver"
                 />
               </td>
 
@@ -453,6 +461,54 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {/* QR Preview Modal */}
+      {previewQr && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setPreviewQr(null)}
+        >
+          <div
+            className="bg-[#151520] border border-[#2a2a3c] rounded-xl p-6 flex flex-col items-center gap-4 mx-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between w-full">
+              <h3 className="text-base font-semibold text-white">{previewQr.name}</h3>
+              <button
+                onClick={() => setPreviewQr(null)}
+                className="text-muted-foreground hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={api.qrImageUrl(previewQr.id)}
+              alt={`QR ${previewQr.name}`}
+              width={220}
+              height={220}
+              className="rounded-lg"
+            />
+            <a
+              href={previewQr.destination_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground text-xs hover:text-purple-400 transition-colors flex items-center gap-1"
+              title={previewQr.destination_url}
+            >
+              {shortUrl(previewQr.destination_url)}
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <button
+              onClick={() => downloadQR(previewQr)}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-md transition-all flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Descargar QR
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* New Group Modal */}
       {showNewGroupModal && (
