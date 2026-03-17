@@ -44,6 +44,16 @@ db.serialize(() => {
     }
   );
 
+  // Migration: add locked column (safe – ignored if column already exists)
+  db.run(
+    `ALTER TABLE qrs ADD COLUMN locked INTEGER NOT NULL DEFAULT 0`,
+    (err) => {
+      if (err && !err.message.includes('duplicate column name')) {
+        console.error('Migration error (locked):', err.message);
+      }
+    }
+  );
+
   // Indexes for query performance
   db.run(`CREATE INDEX IF NOT EXISTS idx_qrs_group_id   ON qrs(group_id)`);
   db.run(`CREATE INDEX IF NOT EXISTS idx_qrs_created_at ON qrs(created_at)`);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, X, LogOut, ExternalLink, Download } from "lucide-react"
+import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, X, LogOut, ExternalLink, Download, Lock, Unlock } from "lucide-react"
 import { api, type QR, type Group } from "@/lib/api"
 
 export default function HomePage() {
@@ -54,6 +54,15 @@ export default function HomePage() {
       setLoadError("No se pudo conectar con el servidor")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleLock = async (id: number) => {
+    try {
+      const updated = await api.toggleLock(id)
+      setQrs(prev => prev.map(q => q.id === id ? updated : q))
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Error al cambiar el candado")
     }
   }
 
@@ -188,7 +197,9 @@ export default function HomePage() {
           </tr>
         </thead>
         <tbody>
-          {groupQrs.map((qr, index) => (
+          {groupQrs.map((qr, index) => {
+            const isLocked = qr.locked === 1
+            return (
             <tr key={qr.id} className="border-b border-[#2a2a3c] last:border-b-0 hover:bg-[#1a1a24] transition-colors">
               <td className="px-4 py-4 text-muted-foreground text-sm">{index + 1}</td>
 
@@ -291,9 +302,25 @@ export default function HomePage() {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(qr.id)}
-                        className="p-1.5 text-muted-foreground hover:text-red-400 transition-colors"
-                        title="Eliminar"
+                        onClick={() => toggleLock(qr.id)}
+                        className={`p-1.5 transition-colors ${
+                          isLocked
+                            ? "text-yellow-400 hover:text-yellow-300"
+                            : "text-muted-foreground hover:text-yellow-400"
+                        }`}
+                        title={isLocked ? "Desbloquear QR" : "Bloquear QR (proteger de eliminación)"}
+                      >
+                        {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => !isLocked && handleDelete(qr.id)}
+                        disabled={isLocked}
+                        className={`p-1.5 transition-colors ${
+                          isLocked
+                            ? "text-muted-foreground/30 cursor-not-allowed"
+                            : "text-muted-foreground hover:text-red-400"
+                        }`}
+                        title={isLocked ? "QR bloqueado — desbloquea primero para eliminar" : "Eliminar"}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -302,7 +329,8 @@ export default function HomePage() {
                 </div>
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>

@@ -145,4 +145,21 @@ const assignGroup = (req, res) => {
   });
 };
 
-module.exports = { getAll, getOne, create, update, assignGroup, remove, getImage };
+// ── PATCH /api/qrs/:id/lock ────────────────────────────────────────────────
+const toggleLock = (req, res) => {
+  const { id } = req.params;
+  db.get('SELECT locked FROM qrs WHERE id = ?', [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: 'QR not found' });
+    const newLocked = row.locked ? 0 : 1;
+    db.run('UPDATE qrs SET locked = ? WHERE id = ?', [newLocked, id], function (err2) {
+      if (err2) return res.status(500).json({ error: err2.message });
+      db.get('SELECT * FROM qrs WHERE id = ?', [id], (err3, updated) => {
+        if (err3) return res.status(500).json({ error: err3.message });
+        res.json(updated);
+      });
+    });
+  });
+};
+
+module.exports = { getAll, getOne, create, update, assignGroup, toggleLock, remove, getImage };

@@ -5,6 +5,7 @@ export interface QR {
   name: string
   destination_url: string
   group_id: number | null
+  locked: number
   created_at: string
 }
 
@@ -36,6 +37,8 @@ export const api = {
     req<QR>(`/api/qrs/${id}`, { method: 'PUT', body: JSON.stringify({ destination_url }) }),
   assignGroup: (id: number, group_id: number | null) =>
     req<QR>(`/api/qrs/${id}/group`, { method: 'PATCH', body: JSON.stringify({ group_id }) }),
+  toggleLock: (id: number) =>
+    req<QR>(`/api/qrs/${id}/lock`, { method: 'PATCH' }),
   deleteQr: (id: number) =>
     req<{ message: string }>(`/api/qrs/${id}`, { method: 'DELETE' }),
   qrImageUrl: (id: number) => `${API_BASE}/api/qrs/${id}/image`,

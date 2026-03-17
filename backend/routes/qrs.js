@@ -5,6 +5,7 @@ const ctrl = require('../controllers/qrsController');
 // Specific sub-routes must be declared before generic /:id
 router.get('/:id/image',   ctrl.getImage);
 router.patch('/:id/group', ctrl.assignGroup);
+router.patch('/:id/lock',  ctrl.toggleLock);
 
 router.get('/',       ctrl.getAll);
 router.get('/:id',    ctrl.getOne);
