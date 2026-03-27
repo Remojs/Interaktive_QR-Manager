@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 const db = require('./db/database');
 const qrsRoutes    = require('./routes/qrs');
 const groupsRoutes = require('./routes/groups');
@@ -19,7 +20,33 @@ app.use(cors({
 
 app.use(express.json());
 
-// ── QR redirect ────────────────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────────
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const TOKEN_SECRET   = process.env.TOKEN_SECRET || 'change-in-production';
+
+function makeToken() {
+  return crypto.createHmac('sha256', TOKEN_SECRET)
+    .update(`${ADMIN_EMAIL}:${ADMIN_PASSWORD}`)
+    .digest('hex');
+}
+
+function requireAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'No autorizado' });
+  if (header.slice(7) !== makeToken()) return res.status(401).json({ error: 'Token inválido' });
+  next();
+}
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' });
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return res.status(500).json({ error: 'Servidor no configurado' });
+  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+  res.json({ token: makeToken() });
+});
 app.get('/q/:id', (req, res) => {
   const { id } = req.params;
 
@@ -33,8 +60,8 @@ app.get('/q/:id', (req, res) => {
 });
 
 // ── API routes ─────────────────────────────────────────────────────────────────
-app.use('/api/qrs',    qrsRoutes);
-app.use('/api/groups', groupsRoutes);
+app.use('/api/qrs',    requireAuth, qrsRoutes);
+app.use('/api/groups', requireAuth, groupsRoutes);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));

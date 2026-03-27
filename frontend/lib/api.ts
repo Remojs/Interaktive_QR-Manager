@@ -16,10 +16,21 @@ export interface Group {
 }
 
 async function req<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('qr-token') : null
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   })
+  if (res.status === 401) {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('qr-token')
+      window.location.href = '/'
+    }
+    throw new Error('No autorizado')
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
     throw new Error(body.error || `HTTP ${res.status}`)
@@ -28,6 +39,10 @@ async function req<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // Auth
+  login: (email: string, password: string) =>
+    req<{ token: string }>('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+
   // QRs
   getQrs: () =>
     req<QR[]>('/api/qrs'),

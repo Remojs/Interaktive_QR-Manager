@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Eye, EyeOff, Lock, User } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail } from "lucide-react"
+import { api } from "@/lib/api"
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -17,14 +18,15 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("qr-auth", "true")
+    try {
+      const { token } = await api.login(email, password)
+      localStorage.setItem("qr-token", token)
       router.push("/home")
-    } else {
+    } catch {
       setError("Usuario o contraseña incorrectos")
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -56,18 +58,18 @@ export default function LoginPage() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-[#151520] border border-[#2a2a3c] rounded-lg p-6 space-y-5">
-            {/* Username Field */}
+            {/* Email Field */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Usuario
+                Email
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Ingresa tu usuario"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Ingresa tu email"
                   className="w-full bg-[#1a1a24] border border-[#2a2a3c] rounded-md py-3 pl-10 pr-4 text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all"
                   required
                 />

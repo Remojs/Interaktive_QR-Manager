@@ -34,7 +34,7 @@ export default function HomePage() {
   const [previewQr, setPreviewQr] = useState<QR | null>(null)
 
   useEffect(() => {
-    if (!localStorage.getItem("qr-auth")) {
+    if (!localStorage.getItem("qr-token")) {
       router.push("/")
       return
     }
@@ -153,7 +153,7 @@ export default function HomePage() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("qr-auth")
+    localStorage.removeItem("qr-token")
     router.push("/")
   }
 
